@@ -1,4 +1,4 @@
-
+use AdventureWorks2012
 --CURSOR
 
 DECLARE StatusCursor CURSOR 
@@ -9,7 +9,7 @@ OPEN StatusCursor
 		
 		
 	WHILE @@FETCH_STATUS = 0 
-		BEGIN
+		BEGIN 
 			
 		update sales.SalesOrderHeader
 		set [Status] = (select round(((rand() + .5) * 2), 0)) 
@@ -31,12 +31,18 @@ update sales.SalesOrderHeader
 set [Status] = (select round(((rand() + .5) * 2), 0)) 
 where [Status] = 5
 
+--RESET
+
+update sales.SalesOrderHeader
+set [Status] = 5
+
+
 --FUNCTION
 
 --ProductID
 
 GO
-ALTER FUNCTION [Production].[fnidProdqty]
+CREATE FUNCTION [Production].[fnidProdqty]
 
 (
 @id int
@@ -70,7 +76,7 @@ select * from Production.ProductInventory
 --Product Name
 
 GO
-Alter FUNCTION [Production].[fnNameProdqty]
+CREATE FUNCTION [Production].[fnNameProdqty]
 
 (
 @name varchar(max)
@@ -103,3 +109,41 @@ END
 select production.fnNameProdqty('Adjustable Race')
 
 select * from Production.Product
+
+--Third Part
+
+
+
+GO
+CREATE PROC sp_ShippedOrders
+AS
+BEGIN
+WITH ShippedOrders AS
+(
+select SOH.*
+from Sales.SalesOrderHeader soh
+join sales.SalesOrderDetail sod
+on soh.SalesOrderID = sod.SalesOrderID
+join Production.ProductInventory inv
+on sod.ProductID = inv.ProductID
+where [Status] in (1,2,3) and
+soh.creditcardID IS NOT NULL AND
+soh.creditcardapprovalcode is NOT NULL AND
+soh.ShipToAddressID IS NOT NULL AND
+soh.BillToAddressID IS NOT NULL AND
+inv.Quantity >= SOD.OrderQty)
+
+UPDATE sales.SalesOrderHeader
+SET [Status] = 5
+WHERE SalesOrderID IN
+	(SELECT SalesOrderID
+	FROM ShippedOrders)
+	END
+	GO
+
+	sp_ShippedOrders
+
+	select * from sales.SalesOrderHeader
+
+
+	 
