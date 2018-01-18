@@ -76,10 +76,10 @@ select * from Production.ProductInventory
 --Product Name
 
 GO
-CREATE FUNCTION [Production].[fnNameProdqty]
+ALTER FUNCTION [Production].[fnNumberProdqty]
 
 (
-@name varchar(max)
+@number nvarchar(max)
 )
 
 RETURNS int
@@ -95,7 +95,7 @@ from production.ProductInventory pv
 inner join
 Production.Product p
 on pv.ProductID = p.ProductID
-where p.Name = @NAME
+where p.ProductNumber = @number
 group by p.ProductID
 )
 
@@ -106,7 +106,7 @@ Return
 
 END
 
-select production.fnNameProdqty('Adjustable Race')
+select [Production].[fnNumberProdqty]('AR-5381')
 
 select * from Production.Product
 
