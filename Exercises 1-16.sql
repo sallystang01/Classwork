@@ -1,5 +1,5 @@
 
-
+use adventureworks2012
 
 -- #1
 
@@ -83,21 +83,24 @@ drop constraint [DF_SalesOrderHeader_OrderDate]
 
 --#4
 
-select top 1000 concat(AddressLine1, ', ' , AddressLine2, ', ' ,City, ', ' ,sp.Name,', ' ,cr.Name) [Address]
-from Person.[Address] a
-inner join
+select  p.BusinessEntityID, concat(AddressLine1, ', ' , AddressLine2, ', ' ,City, ', ' ,sp.Name,', ' ,cr.Name) [Address]
+from Person.Person p
+left join
+Person.BusinessEntity be
+on be.BusinessEntityID = p.BusinessEntityID
+left join
 Person.BusinessEntityAddress bea
-on bea.AddressID = a.AddressID
-inner join
-Person.Person p
-on p.BusinessEntityID = bea.BusinessEntityID
-inner join 
+on bea.BusinessEntityID = be.BusinessEntityID
+left join
+Person.[Address] a
+on a.AddressID = bea.AddressID
+left join 
 Person.StateProvince sp
 on sp.StateProvinceID = a.StateProvinceID
-inner join
+left join
 Person.CountryRegion cr
 on cr.CountryRegionCode = sp.CountryRegionCode
-where bea.BusinessEntityID = @id
+order by p.BusinessEntityID
 
 
 GO
@@ -115,21 +118,21 @@ DECLARE @address varchar(max)
 
 set @address = (
 
-select concat(AddressLine1, ', ' , AddressLine2, ', ' ,City, ', ' ,sp.Name,', ' ,cr.Name) [Address]
-from Person.[Address] a
+select top 1 concat(AddressLine1, ', ' , AddressLine2, ', ' ,City, ', ' ,sp.Name,', ' ,cr.Name) [Address]
+from Person.Person p
 inner join
 Person.BusinessEntityAddress bea
-on bea.AddressID = a.AddressID
+on bea.BusinessEntityID = p.BusinessEntityID
 inner join
-Person.Person p
-on p.BusinessEntityID = bea.BusinessEntityID
+Person.[Address] a
+on a.AddressID = bea.AddressID
 inner join 
 Person.StateProvince sp
 on sp.StateProvinceID = a.StateProvinceID
 inner join
 Person.CountryRegion cr
 on cr.CountryRegionCode = sp.CountryRegionCode
-where bea.BusinessEntityID = @id
+where p.BusinessEntityID = @id and p.BusinessEntityID is not null and bea.AddressID is not null
 )
 
 
@@ -139,11 +142,11 @@ Return
 
 END
 
-select Person.AddressSearch(2500) [Address]
+select Person.AddressSearch(291) [Address]
 
-select top 2000 Person.AddressSearch(p.BusinessEntityID) [Address], p.BusinessEntityID
+select Person.AddressSearch(p.BusinessEntityID) [Address], p.BusinessEntityID
 from Person.Person p
-where Person.AddressSearch(p.BusinessEntityID) is not null
+
 order by p.BusinessEntityID
 
 
@@ -156,3 +159,7 @@ inner join
 Person.Address a
 on a.AddressID = bea.AddressID
 order by p.BusinessEntityID
+
+select * from Person.Person
+select * from Person.BusinessEntityAddress
+select * from Person.[Address]
