@@ -19,7 +19,7 @@ ClientID int not null identity(1, 1),
 FirstName varchar(25) not null,
 LastName varchar(25) not null,
 MiddleName varchar(25),
-CreateDate date
+CreateDate date DEFAULT getdate(),
 PRIMARY KEY (ClientID)
 )
 
@@ -35,10 +35,11 @@ StateProvince varchar(25) not null,
 PostalCode varchar(15) not null,
 Phone varchar(15) not null,
 AltPhone varchar(15),
-Email varchar(35)
-PRIMARY KEY (AddressID)
+Email varchar(35),
+PRIMARY KEY (AddressID),
 CONSTRAINT FK_ClientID FOREIGN KEY (ClientID)
-REFERENCES Clients(ClientID)
+REFERENCES Clients(ClientID),
+CONSTRAINT CK_ADDRESSTYPE CHECK (AddressType = 1 or AddressType = 2)
 )
 
 CREATE TABLE Patients
@@ -50,7 +51,7 @@ AnimalType int not null,
 Color varchar(25) not null,
 Gender varchar(2) not null,
 BirthYear varchar(4) not null,
-[Weight] decimal(2) not null,
+[Weight] decimal(10,2) not null,
 [Description] varchar(1024) not null,
 GeneralNotes varchar(2048) not null,
 Chipped bit not null,
@@ -94,13 +95,13 @@ PRIMARY KEY (VisitID)
 CONSTRAINT FK_PatientID FOREIGN KEY (PatientID)
 REFERENCES Patients(PatientID),
 CONSTRAINT FK_EmployeeID FOREIGN KEY (EmployeeID)
-REFERENCES Employees(EmployeeID)
+REFERENCES Employees(EmployeeID),
+CONSTRAINT CK_EndTime CHECK (EndTime > StartTime)
 )
 
 CREATE TABLE EmployeeContactInfo
 (
 AddressID int not null identity(1, 1),
-AddressType int not null,
 AddressLine1 varchar(50) not null,
 AddressLine2 varchar(50),
 City varchar(35) not null,
@@ -120,12 +121,13 @@ BillID int not null identity(1, 1),
 BillDate Date not null,
 ClientID int not null,
 VisitID int not null,
-Amount decimal not null
+Amount decimal(10, 2) not null
 PRIMARY KEY (BillID)
 CONSTRAINT FK_1ClientID FOREIGN KEY (ClientID)
 REFERENCES Clients(ClientID),
 CONSTRAINT FK_VisitID FOREIGN KEY (VisitID)
-REFERENCES Visits(VisitID)
+REFERENCES Visits(VisitID),
+CONSTRAINT CK_BillDate CHECK (BillDate <= getdate())
 )
 
 
@@ -138,6 +140,7 @@ Notes varchar(2048) not null,
 Amount decimal not null
 PRIMARY KEY (PaymentID)
 CONSTRAINT FK_BillID FOREIGN KEY (BillID)
-REFERENCES Billing(BillID)
+REFERENCES Billing(BillID),
+CONSTRAINT CK_PaymentDate CHECK (PaymentDate <= getdate())
 )
 
