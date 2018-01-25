@@ -70,5 +70,8 @@ insert into Billing (BillDate, ClientID, VisitID, Amount) values ('2017-12-13 20
 insert into Billing (BillDate, ClientID, VisitID, Amount) values ('2017-11-18 06:06:22', 2, 4, 75.97);
 insert into Billing (BillDate, ClientID, VisitID, Amount) values ('2017-11-15 16:38:58', 2, 5, 2.56);
 
+insert into Payments (PaymentDate, BillID, Notes, Amount)
+values (GETDATE(), 1, 'N/A', 14.36)
+
 
 

@@ -58,3 +58,19 @@ DENY INSERT ON OBJECT::
 DENY DELETE ON OBJECT::
      employeecontactinfo
         TO VetClerk  	
+
+GRANT EXEC ON OBJECT::
+	sp_Breed
+		TO VetClerk
+
+GRANT EXEC ON OBJECT::
+	sp_Species
+		TO VetClerk
+
+GRANT EXEC ON OBJECT::
+	sp_BillingAndPayment
+		TO VetClerk
+
+GRANT EXEC ON OBJECT::
+	sp_MailingList
+		TO VetClerk
