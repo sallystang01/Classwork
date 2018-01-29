@@ -105,7 +105,7 @@ GO
 
 exec sp_MailingList 1
 
---Client Procedure
+
 GO
 ALTER PROCEDURE sp_NewClient
 
@@ -121,7 +121,7 @@ ALTER PROCEDURE sp_NewClient
 	@Phone varchar(15),
 	@AltPhone varchar(15),
 	@Email varchar(35),
-	@ClientID int
+	@ClientID int OUTPUT
 	AS
 	BEGIN
 		
@@ -130,7 +130,7 @@ ALTER PROCEDURE sp_NewClient
 		VALUES
 		(@FirstName, @LastName, @MiddleName)
 		
-		SET @ClientID = SCOPE_IDENTITY()
+		SET @ClientID = (select top 1 SCOPE_IDENTITY() from Clients)
 		
 	INSERT INTO ClientContacts
 		(ClientID ,AddressType, AddressLine1, AddressLine2, City, StateProvince, PostalCode, Phone, AltPhone, Email)
@@ -142,6 +142,48 @@ ALTER PROCEDURE sp_NewClient
 END
 GO
 
-exec sp_NewClient 'Bob', 'John', 'Taylor', @clientid, 1, '111 Yolo Street', '11', 'Ocala', 'Florida', '33333', '352-111-1111', '352-222-2222', 'test@gmail.com'
+exec sp_NewClient 'Bob', 'John', 'Taylor', 1, '111 Yolo Street', '11', 'Ocala', 'Florida', '33333', '352-111-1111', '352-222-2222', 'test@gmail.com', ''
 
 select * from Clients
+select * from ClientContacts
+
+GO
+ALTER PROCEDURE sp_NewEmployee
+
+	@LastName varchar(25),
+	@FirstName varchar(25),
+	@MiddleName varchar(25),
+	@HireDate date,
+	@Title varchar(50),
+	@AddressLine1 varchar(50),
+	@AddressLine2 varchar(50),
+	@City varchar(35),
+	@StateProvince varchar(25),
+	@PostalCode varchar(15),
+	@Phone varchar(15),
+	@AltPhone varchar(15),
+	@EmployeeID int OUTPUT
+	AS
+	BEGIN
+		
+	INSERT INTO Employees
+		(LastName, FirstName, MiddleName, HireDate, Title)
+		VALUES
+		(@LastName, @FirstName, @MiddleName, @HireDate, @Title)
+		
+		SET @EmployeeID = (select top 1 SCOPE_IDENTITY() from Employees)
+		
+	INSERT INTO EmployeeContactInfo
+		(AddressLine1, AddressLine2, City, StateProvince, PostalCode, Phone, AltPhone, EmployeeID)
+		VALUES
+		(@AddressLine1, @AddressLine2, @City, @StateProvince, @PostalCode, @Phone, @AltPhone, @EmployeeID)
+
+	SELECT @EmployeeID
+	FROM Employees
+END
+GO
+
+exec sp_NewEmployee 'Pearl','Goodwind','Natasha','01-29-2018','Vet Tech','901 32nd Avenue', null, 'Ocala','Florida','34470','352-213-3134', '352-555-5555', ' '
+
+select * from Employees
+select * from EmployeeContactInfo
