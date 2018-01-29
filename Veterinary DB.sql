@@ -225,6 +225,7 @@ values (GETDATE(), 1, 'N/A', 14.36)
 
 
 --Species
+GO
 CREATE PROC sp_Species	
 	@Species varchar(35)
 
@@ -253,7 +254,7 @@ exec sp_Species 'Dog'
 
 --Breeds
 GO
-ALTER PROC sp_Breed	
+CREATE PROC sp_Breed	
 	@Breed varchar(35)
 
 	
@@ -282,7 +283,7 @@ exec sp_Breed 'Poodle'
 --Billing and Payment Information
 
 GO
-ALTER PROC sp_BillingAndPayment
+CREATE PROC sp_BillingAndPayment
 
 	@ClientID INT
 
@@ -332,7 +333,7 @@ exec sp_MailingList 1
 
 
 GO
-ALTER PROCEDURE sp_NewClient
+CREATE PROCEDURE sp_NewClient
 
 	@FirstName varchar(25),
 	@LastName varchar(25),
@@ -370,7 +371,7 @@ GO
 exec sp_NewClient 'Bob', 'John', 'Taylor', 1, '111 Yolo Street', '11', 'Ocala', 'Florida', '33333', '352-111-1111', '352-222-2222', 'test@gmail.com', ''
 
 GO
-ALTER PROCEDURE sp_NewEmployee
+CREATE PROCEDURE sp_NewEmployee
 
 	@LastName varchar(25),
 	@FirstName varchar(25),
@@ -409,3 +410,135 @@ exec sp_NewEmployee 'Pearl','Goodwind','Natasha','01-29-2018','Vet Tech','901 32
 
 ------------------------------------------------ROLES-------------------------------------------------------------------------------------------
 
+
+GO
+if (select count(*)
+	from sys.syslogins where name = 'VetManager') > 0
+
+	DROP LOGIN [VetManager]
+	Print 'VetManager Login Dropped'
+
+if (select count(*)
+	from sys.syslogins where name = 'VetClerk') > 0
+
+	DROP LOGIN [VetClerk]
+	Print 'VetClerk Login Dropped'
+
+GO
+if (select count(*)
+	from sys.sysusers where name = 'VetManager') > 0
+	DROP USER [VetManager]
+	PRINT 'VetManager User Dropped'
+
+GO
+	if (select count(*)
+	from sys.sysusers where name = 'VetClerk') > 0
+	DROP USER [VetClerk]
+	PRINT 'VetClerk User Dropped'
+
+
+CREATE LOGIN VetManager   
+    WITH PASSWORD = 'VetManager1234';  
+GO  
+
+-- Creates a database user for the login created above.  
+CREATE USER VetManager FOR LOGIN VetManager;  
+GO
+
+-- Creates the login ComeauUser with password '340$Uuxwp7Mcxo7Khy'.  
+CREATE LOGIN VetClerk   
+    WITH PASSWORD = 'VetClerk1234';  
+GO  
+
+-- Creates a database user for the login created above.  
+CREATE USER VetClerk FOR LOGIN VetClerk;  
+GO
+
+ALTER ROLE db_datareader ADD MEMBER VetManager ;  
+GO
+
+ALTER ROLE db_datawriter ADD MEMBER VetManager ;  
+GO
+
+ALTER ROLE db_datareader ADD MEMBER VetClerk ;  
+GO
+
+DENY ALTER ON OBJECT::
+     clientcontacts
+        TO VetClerk  
+DENY SELECT ON OBJECT::
+     clientcontacts
+        TO VetClerk  
+DENY UPDATE ON OBJECT::
+     clientcontacts
+        TO VetClerk
+DENY INSERT ON OBJECT::
+     clientcontacts
+        TO VetClerk  		  
+DENY DELETE ON OBJECT::
+     clientcontacts
+        TO VetClerk  	
+
+DENY ALTER ON OBJECT::
+     employeecontactinfo
+        TO VetClerk  
+DENY SELECT ON OBJECT::
+     employeecontactinfo
+        TO VetClerk  
+DENY UPDATE ON OBJECT::
+     employeecontactinfo
+        TO VetClerk
+DENY INSERT ON OBJECT::
+     employeecontactinfo
+        TO VetClerk  		  
+DENY DELETE ON OBJECT::
+     employeecontactinfo
+        TO VetClerk  	
+
+GRANT EXEC ON
+	sp_Breed
+		TO VetClerk
+
+GRANT EXEC ON
+	sp_Species
+		TO VetClerk
+
+GRANT EXEC ON
+	sp_BillingAndPayment
+		TO VetClerk
+
+GRANT EXEC ON
+	sp_MailingList
+		TO VetClerk
+
+GRANT EXEC ON
+	sp_Breed
+		TO VetManager
+
+GRANT EXEC ON
+	sp_Species
+		TO VetManager
+
+GRANT EXEC ON
+	sp_BillingAndPayment
+		TO VetManager
+
+GRANT EXEC ON
+	sp_MailingList
+		TO VetManager
+
+GRANT EXEC ON
+	sp_NewClient
+		TO VetManager
+
+GRANT EXEC ON
+	sp_NewEmployee
+		TO VetManager
+
+GRANT EXEC ON
+	sp_NewClient
+		TO VetClerk
+
+GRANT EXEC ON
+	sp_NewEmployee
+		TO VetClerk
