@@ -25,7 +25,11 @@ where e.BusinessEntityID = sp.BusinessEntityID
 --QUERY 1 59%
 --QUERY 2 41%
 
+
+
+
 --=========================================QUESTION 2=========================================--
+
 
 --select * from Person.BusinessEntity
 --select * from Person.Person
